@@ -49,10 +49,15 @@
     "jest-preset-angular": "~14.5.5",
     "nx": "20.8.1",
     "prettier": "^3.5.3",
+    "prettier-plugin-organize-attributes": "^1.0.0",
+    "prettier-plugin-organize-imports": "^4.1.0",
     "ts-jest": "^29.3.2",
     "ts-node": "10.9.2",
     "tslib": "^2.8.1",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.31.0"
+  },
+  "volta": {
+    "node": "22.15.0"
   }
 }
