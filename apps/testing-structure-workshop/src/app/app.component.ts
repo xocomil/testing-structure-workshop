@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { TMNTService } from './services/tmnt.service';
+import { Component, inject, OnInit } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { TMNTCharacter } from './models/tmnt-character.model';
+import { TMNTService } from './services/tmnt.service';
 
 @Component({
   imports: [RouterModule, CommonModule],
@@ -14,19 +14,32 @@ import { TMNTCharacter } from './models/tmnt-character.model';
       <div class="mb-6">
         <h2 class="text-xl font-semibold mb-2">Top Characters by High Score</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div *ngFor="let character of topCharacters" class="card bg-base-100 shadow-xl">
-            <div class="card-body">
-              <h3 class="card-title">{{ character.name }}</h3>
-              <div class="badge" [ngStyle]="{'background-color': character.color, 'color': 'white'}">
-                {{ character.color }}
-              </div>
-              <p><strong>Weapon:</strong> {{ character.weapon }}</p>
-              <p><strong>High Score:</strong> {{ character.highScore }}</p>
-              <div class="card-actions justify-end">
-                <button class="btn btn-primary" (click)="showDetails(character)">Details</button>
+          @for (character of topCharacters; track character.id) {
+            <div class="card bg-base-100 shadow-xl">
+              <div class="card-body">
+                <h3 class="card-title">{{ character.name }}</h3>
+                <div
+                  class="badge"
+                  [ngStyle]="{
+                    'background-color': character.color,
+                    color: 'white',
+                  }"
+                >
+                  {{ character.color }}
+                </div>
+                <p><strong>Weapon:</strong> {{ character.weapon }}</p>
+                <p><strong>High Score:</strong> {{ character.highScore }}</p>
+                <div class="card-actions justify-end">
+                  <button
+                    class="btn btn-primary"
+                    (click)="showDetails(character)"
+                  >
+                    Details
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          }
         </div>
       </div>
 
@@ -44,39 +57,74 @@ import { TMNTCharacter } from './models/tmnt-character.model';
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let character of allCharacters">
-                <td>{{ character.name }}</td>
-                <td>
-                  <div class="badge" [ngStyle]="{'background-color': character.color, 'color': 'white'}">
-                    {{ character.color }}
-                  </div>
-                </td>
-                <td>{{ character.weapon }}</td>
-                <td>{{ character.highScore }}</td>
-                <td>
-                  <button class="btn btn-sm btn-primary" (click)="showDetails(character)">Details</button>
-                </td>
-              </tr>
+              @for (character of allCharacters; track character.id) {
+                <tr>
+                  <td>{{ character.name }}</td>
+                  <td>
+                    <div
+                      class="badge"
+                      [ngStyle]="{
+                        'background-color': character.color,
+                        color: 'white',
+                      }"
+                    >
+                      {{ character.color }}
+                    </div>
+                  </td>
+                  <td>{{ character.weapon }}</td>
+                  <td>{{ character.highScore }}</td>
+                  <td>
+                    <button
+                      class="btn btn-sm btn-primary"
+                      (click)="showDetails(character)"
+                    >
+                      Details
+                    </button>
+                  </td>
+                </tr>
+              }
             </tbody>
           </table>
         </div>
       </div>
 
-      <div *ngIf="selectedCharacter" class="card bg-base-100 shadow-xl mb-6">
-        <div class="card-body">
-          <h2 class="card-title">{{ selectedCharacter.name }} Details</h2>
-          <div class="badge mb-2" [ngStyle]="{'background-color': selectedCharacter.color, 'color': 'white'}">
-            {{ selectedCharacter.color }}
-          </div>
-          <p><strong>Weapon:</strong> {{ selectedCharacter.weapon }}</p>
-          <p><strong>High Score:</strong> {{ selectedCharacter.highScore }}</p>
-          <p><strong>Skills:</strong> {{ selectedCharacter.skills.join(', ') }}</p>
-          <p *ngIf="selectedCharacter.description"><strong>Description:</strong> {{ selectedCharacter.description }}</p>
-          <div class="card-actions justify-end">
-            <button class="btn btn-secondary" (click)="selectedCharacter = null">Close</button>
+      @if (selectedCharacter) {
+        <div class="card bg-base-100 shadow-xl mb-6">
+          <div class="card-body">
+            <h2 class="card-title">{{ selectedCharacter.name }} Details</h2>
+            <div
+              class="badge mb-2"
+              [ngStyle]="{
+                'background-color': selectedCharacter.color,
+                color: 'white',
+              }"
+            >
+              {{ selectedCharacter.color }}
+            </div>
+            <p><strong>Weapon:</strong> {{ selectedCharacter.weapon }}</p>
+            <p>
+              <strong>High Score:</strong> {{ selectedCharacter.highScore }}
+            </p>
+            <p>
+              <strong>Skills:</strong> {{ selectedCharacter.skills.join(', ') }}
+            </p>
+            @if (selectedCharacter.description) {
+              <p>
+                <strong>Description:</strong>
+                {{ selectedCharacter.description }}
+              </p>
+            }
+            <div class="card-actions justify-end">
+              <button
+                class="btn btn-secondary"
+                (click)="selectedCharacter = null"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      }
     </div>
     <router-outlet></router-outlet>
   `,
@@ -87,19 +135,18 @@ export class AppComponent implements OnInit {
   allCharacters: TMNTCharacter[] = [];
   topCharacters: TMNTCharacter[] = [];
   selectedCharacter: TMNTCharacter | null = null;
-
-  constructor(private tmntService: TMNTService) {}
+  private tmntService: TMNTService = inject(TMNTService);
 
   ngOnInit(): void {
     this.loadCharacters();
   }
 
   loadCharacters(): void {
-    this.tmntService.getAllCharacters().subscribe(characters => {
+    this.tmntService.getAllCharacters().subscribe((characters) => {
       this.allCharacters = characters;
     });
 
-    this.tmntService.getTopCharacters(3).subscribe(characters => {
+    this.tmntService.getTopCharacters(3).subscribe((characters) => {
       this.topCharacters = characters;
     });
   }
