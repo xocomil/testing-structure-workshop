@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TMNTCharacter } from './models/tmnt-character.model';
-import { TMNTService } from './services/tmnt.service';
+import { AppStore } from './store/app.component.store';
 
 @Component({
   imports: [RouterModule, CommonModule],
@@ -14,7 +14,7 @@ import { TMNTService } from './services/tmnt.service';
       <div class="mb-6">
         <h2 class="text-xl font-semibold mb-2">Top Characters by High Score</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          @for (character of topCharacters; track character.id) {
+          @for (character of appStore.topCharacters(); track character.id) {
             <div class="card bg-base-100 shadow-xl">
               <div class="card-body">
                 <h3 class="card-title">{{ character.name }}</h3>
@@ -57,7 +57,7 @@ import { TMNTService } from './services/tmnt.service';
               </tr>
             </thead>
             <tbody>
-              @for (character of allCharacters; track character.id) {
+              @for (character of appStore.allCharacters(); track character.id) {
                 <tr>
                   <td>{{ character.name }}</td>
                   <td>
@@ -88,36 +88,33 @@ import { TMNTService } from './services/tmnt.service';
         </div>
       </div>
 
-      @if (selectedCharacter) {
+      @let character = appStore.selectedCharacter();
+      @if (appStore.characterSelected()) {
         <div class="card bg-base-100 shadow-xl mb-6">
           <div class="card-body">
-            <h2 class="card-title">{{ selectedCharacter.name }} Details</h2>
+            <h2 class="card-title">{{ character.name }} Details</h2>
             <div
               class="badge mb-2"
               [ngStyle]="{
-                'background-color': selectedCharacter.color,
+                'background-color': character.color,
                 color: 'white',
               }"
             >
-              {{ selectedCharacter.color }}
+              {{ character.color }}
             </div>
-            <p><strong>Weapon:</strong> {{ selectedCharacter.weapon }}</p>
-            <p>
-              <strong>High Score:</strong> {{ selectedCharacter.highScore }}
-            </p>
-            <p>
-              <strong>Skills:</strong> {{ selectedCharacter.skills.join(', ') }}
-            </p>
-            @if (selectedCharacter.description) {
+            <p><strong>Weapon:</strong> {{ character.weapon }}</p>
+            <p><strong>High Score:</strong> {{ character.highScore }}</p>
+            <p><strong>Skills:</strong> {{ character.skills.join(', ') }}</p>
+            @if (character.description) {
               <p>
                 <strong>Description:</strong>
-                {{ selectedCharacter.description }}
+                {{ character.description }}
               </p>
             }
             <div class="card-actions justify-end">
               <button
                 class="btn btn-secondary"
-                (click)="selectedCharacter = null"
+                (click)="appStore.deselectCharacter()"
               >
                 Close
               </button>
@@ -129,29 +126,14 @@ import { TMNTService } from './services/tmnt.service';
     <router-outlet></router-outlet>
   `,
   styles: [],
+  providers: [AppStore],
 })
-export class AppComponent implements OnInit {
-  title = 'testing-structure-workshop';
-  allCharacters: TMNTCharacter[] = [];
-  topCharacters: TMNTCharacter[] = [];
-  selectedCharacter: TMNTCharacter | null = null;
-  private tmntService: TMNTService = inject(TMNTService);
+export class AppComponent {
+  protected readonly title = 'testing-structure-workshop';
 
-  ngOnInit(): void {
-    this.loadCharacters();
-  }
+  protected appStore = inject(AppStore);
 
-  loadCharacters(): void {
-    this.tmntService.getAllCharacters().subscribe((characters) => {
-      this.allCharacters = characters;
-    });
-
-    this.tmntService.getTopCharacters(3).subscribe((characters) => {
-      this.topCharacters = characters;
-    });
-  }
-
-  showDetails(character: TMNTCharacter): void {
-    this.selectedCharacter = character;
+  protected showDetails(character: TMNTCharacter): void {
+    this.appStore.selectCharacter(character);
   }
 }
