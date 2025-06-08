@@ -1,5 +1,28 @@
 # TestingStructureWorkshop
 
+This repo was used in an Angular Communit Meetup live workshop: ["Structuring Code to Avoid Shell-Shocked Testing | Jason Warner"](https://www.youtube.com/watch?v=nbzJGcrTp0k).
+
+> The way we write our code has a significant impact on how testable it is. Let's talk about testing strategies and how we can structure our code to make those testing strategies work. Can we write our code so that we are more successful with testing? Absolutely! Let's talk about it.
+
+The code in this repo can be referenced in a before & after way in `main`, with one folder being for the hard to test code that the workshop started with, and the other folder being better testable code
+- Before: [`testing-structure-workshop` folder](https://github.com/xocomil/testing-structure-workshop/tree/main/apps/testing-structure-workshop)
+    - Main files
+        - [component](https://github.com/xocomil/testing-structure-workshop/blob/main/apps/testing-structure-workshop/src/app/app.component.ts)
+        - [component spec file](https://github.com/xocomil/testing-structure-workshop/blob/main/apps/testing-structure-workshop/src/app/app.component.spec.ts)
+    - Most of the important async logic for loading the TMNT info was done in the component
+    - Manual subscriptions that assigned non-reactive data
+    - Hard to test and reason about because of the mix of component logic and async data
+- After: [`testable-code` folder](https://github.com/xocomil/testing-structure-workshop/tree/main/apps/testable-code)
+    - Main files
+        - [component](https://github.com/xocomil/testing-structure-workshop/blob/main/apps/testable-code/src/app/app.component.ts)
+        - [store](https://github.com/xocomil/testing-structure-workshop/blob/main/apps/testable-code/src/app/store/app.component.store.ts)
+        - [store spec file](https://github.com/xocomil/testing-structure-workshop/blob/main/apps/testable-code/src/app/store/app.component.store.spec.ts)
+    - The important async logic was moved to a signal store
+    - Data is reactive - no manual subscriptions
+    - Easier testing for:
+        -  Component: no testing of the data needed
+        -  Store: easier to set and read test data as it can effectively be handled synchronously since the store handles the async computation automatically
+
 <a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
 
 ✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
